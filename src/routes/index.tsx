@@ -1,24 +1,51 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useNavigate, Link } from "@tanstack/react-router";
+import { useAuth, homeForRole } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { SCHOOL_NAME } from "@/lib/format";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Rajnish Memorial Public School — School Management Portal" },
+      {
+        name: "description",
+        content:
+          "Official portal of Rajnish Memorial Public School for fees, attendance, notices, homework and results.",
+      },
+      { property: "og:title", content: "Rajnish Memorial Public School — School Portal" },
+      {
+        property: "og:description",
+        content: "Fees, attendance, notices, homework and results in one place for parents and staff.",
+      },
+    ],
+  }),
+  component: Landing,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
+function Landing() {
+  const { session, role, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && session) void navigate({ to: homeForRole(role), replace: true });
+  }, [loading, session, role, navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6 text-center">
+      <span className="brand-gradient mb-6 flex size-16 items-center justify-center rounded-2xl text-lg font-bold text-primary-foreground">
+        RM
+      </span>
+      <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">{SCHOOL_NAME}</h1>
+      <p className="mt-3 max-w-md text-muted-foreground">
+        School management portal for administrators, teachers and parents — fees, attendance,
+        notices, homework and results.
+      </p>
+      <Button asChild size="lg" className="mt-8">
+        <Link to="/auth">Sign in to continue</Link>
+      </Button>
     </div>
   );
 }
