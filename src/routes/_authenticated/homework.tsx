@@ -63,15 +63,24 @@ function HomeworkPage() {
     }
     setBusy(true);
     const { data: userRes } = await supabase.auth.getUser();
-    const { error } = await supabase.from("homework").insert({
+    const payload: {
+      class_id: string;
+      subject: string;
+      title: string;
+      assigned_date: string;
+      due_date: string;
+      created_by: string | null;
+      description?: string;
+    } = {
       class_id: form.class_id,
       subject: form.subject.trim(),
       title: form.title.trim(),
-      description: form.description.trim() || undefined,
       assigned_date: new Date().toISOString().slice(0, 10),
       due_date: form.due_date,
       created_by: userRes.user?.id ?? null,
-    });
+    };
+    if (form.description.trim()) payload.description = form.description.trim();
+    const { error } = await supabase.from("homework").insert(payload);
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Homework assigned");
