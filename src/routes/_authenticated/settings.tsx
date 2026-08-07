@@ -102,7 +102,7 @@ function SettingsPage() {
             <Textarea
               id="reminder_template"
               rows={5}
-              value={(form["reminder_template"] ?? "") ?? ""}
+              value={form["reminder_template"] ?? ""}
               onChange={(e) => setForm({ ...form, reminder_template: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">

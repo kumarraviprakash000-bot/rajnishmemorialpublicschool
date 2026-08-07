@@ -159,7 +159,7 @@ export function FeeStructures() {
               <Input
                 id="due_date"
                 type="date"
-                value={(form["due_date"] ?? "") ?? ""}
+                value={form["due_date"] ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, due_date: e.target.value }))}
               />
             </div>
