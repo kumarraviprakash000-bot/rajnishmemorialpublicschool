@@ -73,7 +73,7 @@ function HomeworkPage() {
       created_by: userRes.user?.id ?? null,
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Homework assigned");
     setOpen(false);
     setForm({ ...form, title: "", description: "" });

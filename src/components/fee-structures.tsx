@@ -71,12 +71,12 @@ export function FeeStructures() {
     const { error } = await supabase
       .from("fee_structures")
       .update({
-        tuition_fee: Number(form.tuition_fee || 0),
-        annual_fee: Number(form.annual_fee || 0),
-        transport_fee: Number(form.transport_fee || 0),
-        other_fee: Number(form.other_fee || 0),
-        late_fee_per_month: Number(form.late_fee_per_month || 0),
-        due_date: form.due_date,
+        tuition_fee: Number((form["tuition_fee"] ?? "") || 0),
+        annual_fee: Number((form["annual_fee"] ?? "") || 0),
+        transport_fee: Number((form["transport_fee"] ?? "") || 0),
+        other_fee: Number((form["other_fee"] ?? "") || 0),
+        late_fee_per_month: Number((form["late_fee_per_month"] ?? "") || 0),
+        due_date: form["due_date"] ?? new Date().toISOString().slice(0, 10),
         updated_at: new Date().toISOString(),
       })
       .eq("id", editing.id);
@@ -159,7 +159,7 @@ export function FeeStructures() {
               <Input
                 id="due_date"
                 type="date"
-                value={form.due_date ?? ""}
+                value={(form["due_date"] ?? "") ?? ""}
                 onChange={(e) => setForm((p) => ({ ...p, due_date: e.target.value }))}
               />
             </div>

@@ -34,15 +34,15 @@ function SettingsPage() {
     if (settings.data) {
       const s = settings.data as Record<string, unknown>;
       setForm({
-        school_name: String(s.school_name ?? ""),
-        address: String(s.address ?? ""),
-        phone: String(s.phone ?? ""),
-        email: String(s.email ?? ""),
-        academic_year: String(s.academic_year ?? ""),
-        late_fee_per_month: String(s.late_fee_per_month ?? 0),
-        late_fee_grace_days: String(s.late_fee_grace_days ?? 0),
-        payment_link: String(s.payment_link ?? ""),
-        reminder_template: String(s.reminder_template ?? ""),
+        school_name: String(s["school_name"] ?? ""),
+        address: String(s["address"] ?? ""),
+        phone: String(s["phone"] ?? ""),
+        email: String(s["email"] ?? ""),
+        academic_year: String(s["academic_year"] ?? ""),
+        late_fee_per_month: String(s["late_fee_per_month"] ?? 0),
+        late_fee_grace_days: String(s["late_fee_grace_days"] ?? 0),
+        payment_link: String(s["payment_link"] ?? ""),
+        reminder_template: String(s["reminder_template"] ?? ""),
       });
     }
   }, [settings.data]);
@@ -55,20 +55,20 @@ function SettingsPage() {
     const { error } = await supabase
       .from("school_settings")
       .update({
-        school_name: form.school_name,
-        address: form.address,
-        phone: form.phone,
-        email: form.email,
-        academic_year: form.academic_year,
-        late_fee_per_month: Number(form.late_fee_per_month || 0),
-        late_fee_grace_days: Number(form.late_fee_grace_days || 0),
-        payment_link: form.payment_link || null,
-        reminder_template: form.reminder_template,
+        school_name: (form["school_name"] ?? ""),
+        address: (form["address"] ?? ""),
+        phone: (form["phone"] ?? ""),
+        email: (form["email"] ?? ""),
+        academic_year: (form["academic_year"] ?? ""),
+        late_fee_per_month: Number((form["late_fee_per_month"] ?? "") || 0),
+        late_fee_grace_days: Number((form["late_fee_grace_days"] ?? "") || 0),
+        payment_link: (form["payment_link"] ?? "") || null,
+        reminder_template: (form["reminder_template"] ?? ""),
         updated_at: new Date().toISOString(),
       })
       .eq("id", 1);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Settings saved");
     void qc.invalidateQueries({ queryKey: ["settings"] });
   };
@@ -102,7 +102,7 @@ function SettingsPage() {
             <Textarea
               id="reminder_template"
               rows={5}
-              value={form.reminder_template ?? ""}
+              value={(form["reminder_template"] ?? "") ?? ""}
               onChange={(e) => setForm({ ...form, reminder_template: e.target.value })}
             />
             <p className="text-xs text-muted-foreground">

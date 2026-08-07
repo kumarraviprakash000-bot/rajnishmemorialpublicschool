@@ -8,8 +8,8 @@ export function PageHeader({
   actions,
 }: {
   title: string;
-  description?: string;
-  actions?: ReactNode;
+  description?: string | undefined;
+  actions?: ReactNode | undefined;
 }) {
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -31,9 +31,9 @@ export function StatCard({
 }: {
   label: string;
   value: ReactNode;
-  hint?: string;
-  icon?: ReactNode;
-  tone?: "default" | "success" | "warning" | "danger" | "brand";
+  hint?: string | undefined;
+  icon?: ReactNode | undefined;
+  tone?: "default" | "success" | "warning" | "danger" | "brand" | undefined;
 }) {
   const toneClass = {
     default: "bg-muted text-foreground",
@@ -89,8 +89,8 @@ export function EmptyState({
   action,
 }: {
   title: string;
-  description?: string;
-  action?: ReactNode;
+  description?: string | undefined;
+  action?: ReactNode | undefined;
 }) {
   return (
     <div className="card-surface flex flex-col items-center justify-center px-6 py-14 text-center">

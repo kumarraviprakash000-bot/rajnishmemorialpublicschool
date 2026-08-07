@@ -71,7 +71,7 @@ function AttendancePage() {
     }));
     const { error } = await supabase.from("attendance").upsert(rows, { onConflict: "student_id,date" });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`Attendance saved for ${roster.length} students`);
     setDraft({});
     void qc.invalidateQueries({ queryKey: ["attendance-day"] });
