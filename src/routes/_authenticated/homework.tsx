@@ -67,7 +67,7 @@ function HomeworkPage() {
       class_id: form.class_id,
       subject: form.subject.trim(),
       title: form.title.trim(),
-      description: form.description.trim() || null,
+      description: form.description.trim() || undefined,
       assigned_date: new Date().toISOString().slice(0, 10),
       due_date: form.due_date,
       created_by: userRes.user?.id ?? null,
