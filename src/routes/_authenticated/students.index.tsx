@@ -185,15 +185,37 @@ function AddStudentDialog({
     guardian_phone: "",
     guardian_email: "",
     address: "",
+    previous_fee_exists: "no",
+previous_pending_fee: "",
   });
 
-  const save = async () => {
-    if (!form.full_name.trim() || !form.admission_no.trim() || !form.guardian_name.trim()) {
-      toast.error("Student name, admission number and guardian name are required.");
-      return;
-    }
-    setBusy(true);
-    const { error } = await supabase.from("students").insert({
+ const save = async () => {
+  if (
+    !form.full_name.trim() ||
+    !form.admission_no.trim() ||
+    !form.guardian_name.trim()
+  ) {
+    toast.error(
+      "Student name, admission number and guardian name are required."
+    );
+    return;
+  }
+
+  const previousPendingFee =
+    form.previous_fee_exists === "yes"
+      ? Number(form.previous_pending_fee || 0)
+      : 0;
+
+  if (!Number.isFinite(previousPendingFee) || previousPendingFee < 0) {
+    toast.error("Enter a valid previous pending fee.");
+    return;
+  }
+
+  setBusy(true);
+
+  const { data: student, error: studentError } = await supabase
+    .from("students")
+    .insert({
       full_name: form.full_name.trim(),
       admission_no: form.admission_no.trim(),
       class_id: form.class_id || null,
@@ -204,16 +226,73 @@ function AddStudentDialog({
       guardian_phone: form.guardian_phone.trim() || null,
       guardian_email: form.guardian_email.trim() || null,
       address: form.address.trim() || null,
-    });
+    })
+    .select("id")
+    .single();
+
+  if (studentError || !student) {
     setBusy(false);
-    if (error) {
-      toast.error(error.message);
+    toast.error(studentError?.message ?? "Could not add student.");
+    return;
+  }
+
+  if (form.class_id) {
+    const { data: feeStructure, error: feeStructureError } = await supabase
+      .from("fee_structures")
+      .select(
+        "id, academic_year, tuition_fee, annual_fee, transport_fee, other_fee, due_date"
+      )
+      .eq("class_id", form.class_id)
+      .order("academic_year", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (feeStructureError) {
+      setBusy(false);
+      toast.error(feeStructureError.message);
       return;
     }
-    toast.success("Student added");
-    onOpenChange(false);
-    onSaved();
-  };
+
+    if (feeStructure) {
+      const totalAmount =
+        Number(feeStructure.tuition_fee) +
+        Number(feeStructure.annual_fee) +
+        Number(feeStructure.transport_fee) +
+        Number(feeStructure.other_fee);
+
+      const { error: feeError } = await supabase
+        .from("student_fees")
+        .insert({
+          student_id: student.id,
+          fee_structure_id: feeStructure.id,
+          academic_year: feeStructure.academic_year,
+          total_amount: totalAmount,
+          discount: 0,
+          late_fee: 0,
+          paid_amount: 0,
+          due_date: feeStructure.due_date,
+          previous_pending_fee: previousPendingFee,
+        });
+
+      if (feeError) {
+        setBusy(false);
+        toast.error(feeError.message);
+        return;
+      }
+    }
+  }
+
+  setBusy(false);
+
+  toast.success(
+    previousPendingFee > 0
+      ? `Student added with previous pending fee ₹${previousPendingFee}`
+      : "Student added"
+  );
+
+  onOpenChange(false);
+  onSaved();
+};
 
   const field = (key: keyof typeof form, label: string, type = "text") => (
     <div className="space-y-2">
@@ -272,6 +351,23 @@ function AddStudentDialog({
           {field("guardian_phone", "Guardian phone")}
           {field("guardian_email", "Guardian email", "email")}
           {field("address", "Address")}
+          <div className="space-y-2">
+  <Label htmlFor="previous_fee_exists">Previous pending fee?</Label>
+  <select
+    id="previous_fee_exists"
+    className="h-9 w-full rounded-md border bg-background px-3 text-sm"
+    value={form.previous_fee_exists}
+    onChange={(e) =>
+      setForm((p) => ({ ...p, previous_fee_exists: e.target.value }))
+    }
+  >
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+</div>
+
+{form.previous_fee_exists === "yes" &&
+  field("previous_pending_fee", "Previous pending fee", "number")}
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
