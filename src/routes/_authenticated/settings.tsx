@@ -42,6 +42,7 @@ function SettingsPage() {
         late_fee_per_month: String(s["late_fee_per_month"] ?? 0),
         late_fee_grace_days: String(s["late_fee_grace_days"] ?? 0),
         payment_link: String(s["payment_link"] ?? ""),
+        payment_qr_url: String(s["payment_qr_url"] ?? ""),
         reminder_template: String(s["reminder_template"] ?? ""),
       });
     }
@@ -63,6 +64,7 @@ function SettingsPage() {
         late_fee_per_month: Number((form["late_fee_per_month"] ?? "") || 0),
         late_fee_grace_days: Number((form["late_fee_grace_days"] ?? "") || 0),
         payment_link: (form["payment_link"] ?? "") || null,
+        payment_qr_url: (form["payment_qr_url"] ?? "") || null,
         reminder_template: (form["reminder_template"] ?? ""),
         updated_at: new Date().toISOString(),
       })
@@ -97,6 +99,46 @@ function SettingsPage() {
           {field("late_fee_per_month", "Late fee per month (₹)", "number")}
           {field("late_fee_grace_days", "Grace period (days)", "number")}
           {field("payment_link", "Online payment link")}
+          <div className="space-y-2">
+            <Label htmlFor="qr">Payment QR code (gallery se upload karein)</Label>
+            {form["payment_qr_url"] ? (
+              <img
+                src={form["payment_qr_url"]}
+                alt="School payment QR code"
+                loading="lazy"
+                className="h-40 w-40 rounded-lg border object-contain p-2"
+              />
+            ) : (
+              <p className="text-xs text-muted-foreground">Abhi koi QR upload nahi hua hai.</p>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <Input
+                id="qr"
+                type="file"
+                accept="image/*"
+                className="max-w-xs"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 3 * 1024 * 1024) {
+                    toast.error("Image 3MB se choti honi chahiye.");
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = () => setForm((f) => ({ ...f, payment_qr_url: String(reader.result ?? "") }));
+                  reader.readAsDataURL(file);
+                }}
+              />
+              {form["payment_qr_url"] ? (
+                <Button type="button" variant="outline" onClick={() => setForm((f) => ({ ...f, payment_qr_url: "" }))}>
+                  Remove QR
+                </Button>
+              ) : null}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Upload ke baad “Save settings” dabayein — parents ko fees page par yeh QR dikhega.
+            </p>
+          </div>
           <div className="space-y-2">
             <Label htmlFor="reminder_template">Reminder message template</Label>
             <Textarea
