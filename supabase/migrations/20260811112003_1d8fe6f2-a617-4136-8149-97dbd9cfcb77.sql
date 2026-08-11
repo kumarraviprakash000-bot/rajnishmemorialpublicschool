@@ -1,0 +1,1 @@
+ALTER TABLE public.school_settings ADD COLUMN IF NOT EXISTS payment_qr_url text;
