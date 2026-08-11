@@ -5,6 +5,7 @@ import { classLabel, shortDate } from "@/lib/format";
 import { PageHeader, StatCard, LoadingRows } from "@/components/ui-kit";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { MyPhoneCard } from "@/components/my-phone-card";
 
 export const Route = createFileRoute("/_authenticated/teacher")({
   head: () => ({
@@ -55,6 +56,7 @@ function TeacherDashboard() {
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <MyPhoneCard />
         <div className="card-surface p-5">
           <h2 className="mb-3 font-semibold">Your classes</h2>
           <ul className="divide-y">

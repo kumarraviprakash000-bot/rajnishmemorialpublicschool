@@ -602,6 +602,7 @@ export type Database = {
           late_fee_per_month: number
           logo_url: string | null
           payment_link: string | null
+          payment_qr_url: string | null
           phone: string | null
           reminder_template: string
           school_name: string
@@ -616,6 +617,7 @@ export type Database = {
           late_fee_per_month?: number
           logo_url?: string | null
           payment_link?: string | null
+          payment_qr_url?: string | null
           phone?: string | null
           reminder_template?: string
           school_name?: string
@@ -630,6 +632,7 @@ export type Database = {
           late_fee_per_month?: number
           logo_url?: string | null
           payment_link?: string | null
+          payment_qr_url?: string | null
           phone?: string | null
           reminder_template?: string
           school_name?: string
