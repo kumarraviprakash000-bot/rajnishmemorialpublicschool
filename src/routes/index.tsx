@@ -4,6 +4,7 @@ import { useNavigate, Link } from "@tanstack/react-router";
 import { useAuth, homeForRole } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { SCHOOL_NAME } from "@/lib/format";
+import { InstallAppButton } from "@/components/install-app-button";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -43,9 +44,12 @@ function Landing() {
         School management portal for administrators, teachers and parents — fees, attendance,
         notices, homework and results.
       </p>
-      <Button asChild size="lg" className="mt-8">
-        <Link to="/auth">Sign in to continue</Link>
-      </Button>
+      <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row">
+        <Button asChild size="lg">
+          <Link to="/auth">Sign in to continue</Link>
+        </Button>
+        <InstallAppButton />
+      </div>
     </div>
   );
 }
