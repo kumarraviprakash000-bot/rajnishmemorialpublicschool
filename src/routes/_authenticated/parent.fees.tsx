@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useFeeRows, usePayments } from "@/lib/data";
+import { useFeeRows, usePayments, useSettings } from "@/lib/data";
 import { useMyChildren } from "@/lib/parent";
 import { inr, pendingOf, shortDate } from "@/lib/format";
 import { PageHeader, StatCard, LoadingRows, EmptyState, TableWrap, FeeStatusBadge } from "@/components/ui-kit";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/parent/fees")({
   head: () => ({
@@ -20,6 +21,10 @@ function ParentFees() {
   const children = useMyChildren();
   const fees = useFeeRows();
   const payments = usePayments();
+  const settings = useSettings();
+  const s = (settings.data ?? {}) as Record<string, unknown>;
+  const qr = String(s["payment_qr_url"] ?? "");
+  const payLink = String(s["payment_link"] ?? "");
 
   if (children.isLoading || fees.isLoading) return <LoadingRows rows={4} />;
   const kids = children.data ?? [];
@@ -28,6 +33,29 @@ function ParentFees() {
   return (
     <>
       <PageHeader title="Fees" description="Your child's fee status and payment history." />
+      {(qr || payLink) && (
+        <div className="card-surface mb-6 flex flex-col items-center gap-3 p-5 text-center">
+          <h2 className="font-semibold">Online fee payment</h2>
+          <p className="text-xs text-muted-foreground">
+            QR scan karke UPI se fees jama karein. Payment ke baad receipt school office se update hogi.
+          </p>
+          {qr ? (
+            <img
+              src={qr}
+              alt="School UPI payment QR code"
+              loading="lazy"
+              className="h-56 w-56 rounded-xl border bg-white object-contain p-3"
+            />
+          ) : null}
+          {payLink ? (
+            <Button asChild>
+              <a href={payLink} target="_blank" rel="noopener noreferrer">
+                Pay online
+              </a>
+            </Button>
+          ) : null}
+        </div>
+      )}
       {kids.map((child) => {
         const fee = (fees.data ?? []).find((f) => f.student_id === child.id);
         const pays = (payments.data ?? []).filter((p) => p.student_id === child.id);
