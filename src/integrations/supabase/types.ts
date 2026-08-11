@@ -340,6 +340,27 @@ export type Database = {
           },
         ]
       }
+      login_otps: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          phone: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at?: string
+          phone: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       marks: {
         Row: {
           created_at: string
