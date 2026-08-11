@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 const SAMPLE = [
-  { label: "Admin", phone: "9455000000" },
+  { label: "Admin", phone: "8750776677" },
   { label: "Teacher", phone: "9812345602" },
   { label: "Parent", phone: "9811000137" },
 ];
