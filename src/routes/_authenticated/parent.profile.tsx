@@ -5,6 +5,7 @@ import { classLabel, shortDate } from "@/lib/format";
 import { PageHeader, LoadingRows, EmptyState } from "@/components/ui-kit";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { MyPhoneCard } from "@/components/my-phone-card";
 
 export const Route = createFileRoute("/_authenticated/parent/profile")({
   head: () => ({
@@ -33,6 +34,10 @@ function ParentProfile() {
         <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
           <Mail className="size-4" /> {user?.email ?? "—"}
         </p>
+      </div>
+
+      <div className="mt-4">
+        <MyPhoneCard />
       </div>
 
       <h2 className="mb-3 mt-6 font-semibold">Linked students</h2>
