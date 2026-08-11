@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SCHOOL_NAME } from "@/lib/format";
+import { InstallAppButton } from "@/components/install-app-button";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
@@ -228,6 +229,10 @@ function AuthPage() {
           <p className="mt-3 text-xs text-muted-foreground">
             Admin/Teacher PIN: 9455 · Parent ko sirf OTP chahiye
           </p>
+        </div>
+
+        <div className="mt-4 flex justify-center">
+          <InstallAppButton />
         </div>
       </div>
     </div>
