@@ -3,7 +3,7 @@ import type { Database } from "@/integrations/supabase/types";
 
 export type LoginRole = "admin" | "teacher" | "parent";
 
-export const ADMIN_PHONE = "9455000000";
+export const ADMIN_PHONE = "8750776677";
 export const STAFF_PIN = "9455";
 
 export type Account = {
