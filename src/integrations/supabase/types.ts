@@ -650,6 +650,7 @@ export type Database = {
           id: string
           late_fee: number
           paid_amount: number
+          previous_pending_fee: number
           status: Database["public"]["Enums"]["fee_status"]
           student_id: string
           total_amount: number
@@ -664,6 +665,7 @@ export type Database = {
           id?: string
           late_fee?: number
           paid_amount?: number
+          previous_pending_fee?: number
           status?: Database["public"]["Enums"]["fee_status"]
           student_id: string
           total_amount?: number
@@ -678,6 +680,7 @@ export type Database = {
           id?: string
           late_fee?: number
           paid_amount?: number
+          previous_pending_fee?: number
           status?: Database["public"]["Enums"]["fee_status"]
           student_id?: string
           total_amount?: number

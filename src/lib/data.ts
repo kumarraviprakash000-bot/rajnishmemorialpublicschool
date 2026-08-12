@@ -88,6 +88,7 @@ export type FeeRow = {
   total_amount: number;
   discount: number;
   late_fee: number;
+  previous_pending_fee: number;
   paid_amount: number;
   due_date: string;
   status: "PAID" | "PARTIALLY_PAID" | "DUE";
@@ -110,7 +111,7 @@ export function useFeeRows() {
       const { data, error } = await supabase
         .from("student_fees")
         .select(
-          "id, student_id, academic_year, total_amount, discount, late_fee, paid_amount, due_date, status, students(id, full_name, admission_no, guardian_name, guardian_phone, guardian_email, active, classes(grade, section))",
+          "id, student_id, academic_year, total_amount, discount, late_fee, previous_pending_fee, paid_amount, due_date, status, students(id, full_name, admission_no, guardian_name, guardian_phone, guardian_email, active, classes(grade, section))",
         );
       if (error) throw error;
       return (data ?? []) as unknown as FeeRow[];
