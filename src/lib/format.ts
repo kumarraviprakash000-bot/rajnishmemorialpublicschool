@@ -42,10 +42,17 @@ type FeeRow = {
   discount: number | string;
   late_fee: number | string;
   paid_amount: number | string;
+  previous_pending_fee?: number | string | null;
 };
 
 export function payableOf(row: Omit<FeeRow, "paid_amount">): number {
-  return Math.max(Number(row.total_amount) - Number(row.discount) + Number(row.late_fee), 0);
+  return Math.max(
+    Number(row.total_amount) -
+      Number(row.discount) +
+      Number(row.late_fee) +
+      Number(row.previous_pending_fee ?? 0),
+    0,
+  );
 }
 
 export function pendingOf(row: FeeRow): number {
