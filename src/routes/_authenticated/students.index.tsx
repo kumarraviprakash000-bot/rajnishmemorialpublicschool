@@ -237,7 +237,7 @@ previous_pending_fee: "",
   }
 
   {
-    let feeStructure: {
+    type FeeStructureRow = {
       id: string;
       academic_year: string;
       tuition_fee: number;
@@ -245,7 +245,8 @@ previous_pending_fee: "",
       transport_fee: number;
       other_fee: number;
       due_date: string;
-    } | null = null;
+    };
+    let feeStructure = null as FeeStructureRow | null;
 
     if (form.class_id) {
       const { data, error: feeStructureError } = await supabase
@@ -263,7 +264,7 @@ previous_pending_fee: "",
         toast.error(feeStructureError.message);
         return;
       }
-      feeStructure = (data ?? null) as typeof feeStructure;
+      feeStructure = (data ?? null) as FeeStructureRow | null;
     }
 
     if (feeStructure || previousPendingFee > 0) {
