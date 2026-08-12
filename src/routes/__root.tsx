@@ -136,8 +136,13 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    // App install (Add to Home screen) needs only the manifest.
+    // Clean up the old app-shell service worker so installs/updates stay reliable.
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-      void navigator.serviceWorker.register("/sw.js").catch(() => {});
+      void navigator.serviceWorker
+        .getRegistrations()
+        .then((regs) => regs.forEach((r) => void r.unregister()))
+        .catch(() => {});
     }
   }, []);
 
