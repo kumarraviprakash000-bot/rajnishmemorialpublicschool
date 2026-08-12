@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { useFeeRows, usePayments, useSettings } from "@/lib/data";
 import { useMyChildren } from "@/lib/parent";
-import { inr, pendingOf, shortDate } from "@/lib/format";
+import { inr, payableOf, pendingOf, shortDate } from "@/lib/format";
 import { PageHeader, StatCard, LoadingRows, EmptyState, TableWrap, FeeStatusBadge } from "@/components/ui-kit";
 import { Button } from "@/components/ui/button";
+import { SCHOOL_UPI_ID, UpiPayDialog } from "@/components/upi-pay-dialog";
 
 export const Route = createFileRoute("/_authenticated/parent/fees")({
   head: () => ({
@@ -22,6 +24,7 @@ function ParentFees() {
   const fees = useFeeRows();
   const payments = usePayments();
   const settings = useSettings();
+  const [payFor, setPayFor] = useState<{ name: string; pending: number } | null>(null);
   const s = (settings.data ?? {}) as Record<string, unknown>;
   const qr = String(s["payment_qr_url"] ?? "");
   const payLink = String(s["payment_link"] ?? "");
@@ -59,6 +62,7 @@ function ParentFees() {
       {kids.map((child) => {
         const fee = (fees.data ?? []).find((f) => f.student_id === child.id);
         const pays = (payments.data ?? []).filter((p) => p.student_id === child.id);
+        const pending = fee ? pendingOf(fee) : 0;
         return (
           <div key={child.id} className="mb-6">
             <div className="mb-3 flex items-center justify-between">
@@ -68,12 +72,25 @@ function ParentFees() {
             <div className="grid grid-cols-3 gap-3">
               <StatCard
                 label="Payable"
-                value={fee ? inr(Number(fee.total_amount) - Number(fee.discount) + Number(fee.late_fee)) : "—"}
+                value={fee ? inr(payableOf(fee)) : "—"}
                 tone="brand"
               />
               <StatCard label="Paid" value={fee ? inr(fee.paid_amount) : "—"} tone="success" />
-              <StatCard label="Pending" value={fee ? inr(pendingOf(fee)) : "—"} tone="danger" />
+              <StatCard label="Pending" value={fee ? inr(pending) : "—"} tone="danger" />
             </div>
+            {fee && Number(fee.previous_pending_fee ?? 0) > 0 ? (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Isme purana pending fee {inr(Number(fee.previous_pending_fee))} bhi shamil hai.
+              </p>
+            ) : null}
+            {pending > 0 ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <Button onClick={() => setPayFor({ name: child.full_name, pending })}>
+                  Pending fee clear karein
+                </Button>
+                <span className="text-xs text-muted-foreground">UPI: {SCHOOL_UPI_ID}</span>
+              </div>
+            ) : null}
             {fee ? (
               <p className="mt-2 text-xs text-muted-foreground">Due date {shortDate(fee.due_date)}</p>
             ) : null}
@@ -106,6 +123,12 @@ function ParentFees() {
           </div>
         );
       })}
+      <UpiPayDialog
+        open={!!payFor}
+        onOpenChange={(o) => !o && setPayFor(null)}
+        studentName={payFor?.name ?? ""}
+        pending={payFor?.pending ?? 0}
+      />
     </>
   );
 }
