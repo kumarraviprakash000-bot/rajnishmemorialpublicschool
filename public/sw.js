@@ -1,27 +1,22 @@
-const CACHE = "rmps-shell-v1";
+// Kill-switch worker: removes the old app-shell service worker and its caches.
+function isOwnCache(name) {
+  return /^rmps-shell-/.test(name);
+}
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(["/", "/manifest.webmanifest"])).catch(() => {}));
-  self.skipWaiting();
-});
+self.addEventListener("install", () => self.skipWaiting());
 
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", (event) =>
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))),
-  );
-  self.clients.claim();
-});
-
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET" || new URL(req.url).origin !== self.location.origin) return;
-  event.respondWith(
-    fetch(req)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(req).then((hit) => hit || caches.match("/"))),
-  );
-});
+    (async () => {
+      try {
+        const keys = await caches.keys();
+        await Promise.allSettled(keys.filter(isOwnCache).map((k) => caches.delete(k)));
+        await self.clients.claim();
+        const clients = await self.clients.matchAll({ type: "window" });
+        await Promise.allSettled(clients.map((c) => c.navigate(c.url)));
+      } finally {
+        await self.registration.unregister();
+      }
+    })(),
+  ),
+);

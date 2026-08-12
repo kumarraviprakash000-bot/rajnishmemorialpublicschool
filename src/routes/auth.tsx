@@ -227,7 +227,7 @@ function AuthPage() {
             ))}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Admin/Teacher PIN: 9455 · Parent ko sirf OTP chahiye
+            Parent ko sirf OTP chahiye. Admin/teacher apna staff PIN daalein.
           </p>
         </div>
 
