@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Download, IndianRupee, Search, Wallet } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useClasses, useFeeRows, type FeeRow } from "@/lib/data";
-import { classLabel, downloadCsv, inr, pendingOf, shortDate } from "@/lib/format";
+import { classLabel, downloadCsv, inr, payableOf, pendingOf, shortDate } from "@/lib/format";
 import { PageHeader, StatCard, LoadingRows, ErrorState, FeeStatusBadge, TableWrap, EmptyState } from "@/components/ui-kit";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,7 +58,7 @@ function FeesPage() {
   if (fees.error) return <ErrorState message={(fees.error as Error).message} />;
 
   const all = fees.data ?? [];
-  const expected = all.reduce((s, r) => s + Number(r.total_amount) - Number(r.discount) + Number(r.late_fee), 0);
+  const expected = all.reduce((s, r) => s + payableOf(r), 0);
   const collected = all.reduce((s, r) => s + Number(r.paid_amount), 0);
   const pendingTotal = all.reduce((s, r) => s + pendingOf(r), 0);
   const pendingCount = all.filter((r) => pendingOf(r) > 0).length;
@@ -74,6 +74,7 @@ function FeesPage() {
         Total: Number(r.total_amount),
         Discount: Number(r.discount),
         LateFee: Number(r.late_fee),
+        PreviousPending: Number(r.previous_pending_fee ?? 0),
         Paid: Number(r.paid_amount),
         Pending: pendingOf(r),
         DueDate: r.due_date,
@@ -165,7 +166,7 @@ function FeesPage() {
                         <p className="text-xs text-muted-foreground">{r.students?.admission_no}</p>
                       </td>
                       <td className="px-4 py-3">{classLabel(r.students?.classes?.grade, r.students?.classes?.section)}</td>
-                      <td className="px-4 py-3 text-right">{inr(Number(r.total_amount) - Number(r.discount) + Number(r.late_fee))}</td>
+                      <td className="px-4 py-3 text-right">{inr(payableOf(r))}</td>
                       <td className="px-4 py-3 text-right text-success">{inr(r.paid_amount)}</td>
                       <td className="px-4 py-3 text-right font-semibold">{inr(pendingOf(r))}</td>
                       <td className="px-4 py-3">{shortDate(r.due_date)}</td>
