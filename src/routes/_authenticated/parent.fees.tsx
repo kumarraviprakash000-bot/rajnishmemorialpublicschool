@@ -24,7 +24,7 @@ function ParentFees() {
   const fees = useFeeRows();
   const payments = usePayments();
   const settings = useSettings();
-  const [payFor, setPayFor] = useState<{ name: string; pending: number } | null>(null);
+  const [payFor, setPayFor] = useState<{ id: string; name: string; pending: number } | null>(null);
   const s = (settings.data ?? {}) as Record<string, unknown>;
   const qr = String(s["payment_qr_url"] ?? "");
   const payLink = String(s["payment_link"] ?? "");
@@ -85,7 +85,7 @@ function ParentFees() {
             ) : null}
             {pending > 0 ? (
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button onClick={() => setPayFor({ name: child.full_name, pending })}>
+                <Button onClick={() => setPayFor({ id: child.id, name: child.full_name, pending })}>
                   Pending fee clear karein
                 </Button>
                 <span className="text-xs text-muted-foreground">UPI: {SCHOOL_UPI_ID}</span>
@@ -126,6 +126,7 @@ function ParentFees() {
       <UpiPayDialog
         open={!!payFor}
         onOpenChange={(o) => !o && setPayFor(null)}
+        studentId={payFor?.id ?? ""}
         studentName={payFor?.name ?? ""}
         pending={payFor?.pending ?? 0}
       />
