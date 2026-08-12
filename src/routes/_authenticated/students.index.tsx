@@ -236,8 +236,19 @@ previous_pending_fee: "",
     return;
   }
 
-  if (form.class_id) {
-    const { data: feeStructure, error: feeStructureError } = await supabase
+  {
+    let feeStructure: {
+      id: string;
+      academic_year: string;
+      tuition_fee: number;
+      annual_fee: number;
+      transport_fee: number;
+      other_fee: number;
+      due_date: string;
+    } | null = null;
+
+    if (form.class_id) {
+      const { data, error: feeStructureError } = await supabase
       .from("fee_structures")
       .select(
         "id, academic_year, tuition_fee, annual_fee, transport_fee, other_fee, due_date"
@@ -247,30 +258,34 @@ previous_pending_fee: "",
       .limit(1)
       .maybeSingle();
 
-    if (feeStructureError) {
-      setBusy(false);
-      toast.error(feeStructureError.message);
-      return;
+      if (feeStructureError) {
+        setBusy(false);
+        toast.error(feeStructureError.message);
+        return;
+      }
+      feeStructure = (data ?? null) as typeof feeStructure;
     }
 
-    if (feeStructure) {
+    if (feeStructure || previousPendingFee > 0) {
       const totalAmount =
-        Number(feeStructure.tuition_fee) +
-        Number(feeStructure.annual_fee) +
-        Number(feeStructure.transport_fee) +
-        Number(feeStructure.other_fee);
+        feeStructure
+          ? Number(feeStructure.tuition_fee) +
+            Number(feeStructure.annual_fee) +
+            Number(feeStructure.transport_fee) +
+            Number(feeStructure.other_fee)
+          : 0;
 
       const { error: feeError } = await supabase
         .from("student_fees")
         .insert({
           student_id: student.id,
-          fee_structure_id: feeStructure.id,
-          academic_year: feeStructure.academic_year,
+          fee_structure_id: feeStructure?.id ?? null,
+          academic_year: feeStructure?.academic_year ?? String(new Date().getFullYear()),
           total_amount: totalAmount,
           discount: 0,
           late_fee: 0,
           paid_amount: 0,
-          due_date: feeStructure.due_date,
+          due_date: feeStructure?.due_date ?? new Date().toISOString().slice(0, 10),
           previous_pending_fee: previousPendingFee,
         });
 
