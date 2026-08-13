@@ -1,8 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { GraduationCap, Mail, Phone } from "lucide-react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { GraduationCap, Mail, Phone, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useTeachers } from "@/lib/data";
 import { classLabel } from "@/lib/format";
 import { PageHeader, StatCard, LoadingRows, ErrorState, EmptyState } from "@/components/ui-kit";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/teachers")({
   head: () => ({
@@ -28,7 +39,10 @@ type TeacherRow = {
 };
 
 function TeachersPage() {
+  const { role } = useAuth();
   const teachers = useTeachers();
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
   if (teachers.isLoading) return <LoadingRows rows={5} />;
   if (teachers.error) return <ErrorState message={(teachers.error as Error).message} />;
 
@@ -36,7 +50,17 @@ function TeachersPage() {
 
   return (
     <>
-      <PageHeader title="Teachers" description="Teaching staff, subjects and class assignments." />
+      <PageHeader
+        title="Teachers"
+        description="Teaching staff, subjects and class assignments."
+        actions={
+          role === "admin" ? (
+            <Button onClick={() => setOpen(true)}>
+              <Plus className="size-4" /> Add teacher
+            </Button>
+          ) : undefined
+        }
+      />
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCard label="Total Teachers" value={rows.length} icon={<GraduationCap className="size-4" />} tone="brand" />
         <StatCard label="Active" value={rows.filter((t) => t.active).length} tone="success" />
@@ -84,6 +108,92 @@ function TeachersPage() {
       ) : (
         <EmptyState title="No teachers yet" />
       )}
+
+      <AddTeacherDialog
+        open={open}
+        onOpenChange={setOpen}
+        onSaved={() => void qc.invalidateQueries({ queryKey: ["teachers"] })}
+      />
     </>
+  );
+}
+
+function AddTeacherDialog({
+  open,
+  onOpenChange,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSaved: () => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [form, setForm] = useState({
+    full_name: "",
+    employee_no: "",
+    subject: "",
+    phone: "",
+    email: "",
+  });
+
+  const save = async () => {
+    if (!form.full_name.trim() || !form.employee_no.trim()) {
+      toast.error("Teacher ka naam aur employee number zaroori hai.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.from("teachers").insert({
+      full_name: form.full_name.trim(),
+      employee_no: form.employee_no.trim(),
+      subject: form.subject.trim() || null,
+      phone: form.phone.trim() || null,
+      email: form.email.trim() || null,
+      active: true,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Teacher add ho gaya — apne phone number se OTP login kar sakte hain.");
+    setForm({ full_name: "", employee_no: "", subject: "", phone: "", email: "" });
+    onOpenChange(false);
+    onSaved();
+  };
+
+  const field = (key: keyof typeof form, label: string, type = "text") => (
+    <div className="space-y-2">
+      <Label htmlFor={key}>{label}</Label>
+      <Input
+        id={key}
+        type={type}
+        value={form[key]}
+        onChange={(e) => setForm({ ...form, [key]: e.target.value })}
+      />
+    </div>
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add teacher</DialogTitle>
+          <DialogDescription>Naye teacher ka record banayein.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {field("full_name", "Full name")}
+          {field("employee_no", "Employee number")}
+          {field("subject", "Subject")}
+          {field("phone", "Phone (login number)")}
+          {field("email", "Email", "email")}
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => void save()} disabled={busy}>
+            {busy ? "Saving…" : "Add teacher"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
