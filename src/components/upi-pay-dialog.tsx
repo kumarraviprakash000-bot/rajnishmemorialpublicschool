@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { inr, shortDate, SCHOOL_NAME } from "@/lib/format";
+import { inr, SCHOOL_NAME } from "@/lib/format";
 import { recordUpiPayment } from "@/lib/parent-pay.functions";
 
 export const SCHOOL_UPI_ID = "q133746399@ybl";
@@ -170,7 +170,7 @@ export function UpiPayDialog({
                     placeholder="12 digit UTR / transaction ID"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Payment complete hone ke baad neeche button dabayein — receipt turant mil jayegi.
+                    Payment complete hone ke baad neeche button dabayein.
                   </p>
                 </div>
               ) : null}
@@ -178,7 +178,7 @@ export function UpiPayDialog({
             <DialogFooter>
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
               <Button disabled={!valid || !launched || busy} onClick={() => void confirmPaid()}>
-                {busy ? "Please wait…" : "Payment ho gaya — receipt lein"}
+                {busy ? "Please wait…" : "Payment ho gaya"}
               </Button>
             </DialogFooter>
           </>
