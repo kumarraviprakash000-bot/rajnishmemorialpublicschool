@@ -36,16 +36,6 @@ const APPS = [
   { key: "Other UPI app", scheme: (q: string) => `upi://pay?${q}` },
 ];
 
-type Receipt = {
-  receipt_no: string;
-  amount: number;
-  method: string;
-  paid_on: string;
-  reference: string | null;
-  studentName: string;
-  admissionNo: string;
-};
-
 export function UpiPayDialog({
   open,
   onOpenChange,
@@ -63,7 +53,7 @@ export function UpiPayDialog({
   const [launched, setLaunched] = useState<string | null>(null);
   const [reference, setReference] = useState("");
   const [busy, setBusy] = useState(false);
-  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [done, setDone] = useState(false);
   const save = useServerFn(recordUpiPayment);
   const qc = useQueryClient();
 
@@ -72,7 +62,7 @@ export function UpiPayDialog({
       setAmount(pending > 0 ? String(pending) : "");
       setLaunched(null);
       setReference("");
-      setReceipt(null);
+      setDone(false);
     }
   }, [open, pending]);
 
@@ -96,10 +86,10 @@ export function UpiPayDialog({
         toast.error(res.message);
         return;
       }
-      setReceipt(res.receipt as Receipt);
+      setDone(true);
       void qc.invalidateQueries({ queryKey: ["payments"] });
       void qc.invalidateQueries({ queryKey: ["student_fees"] });
-      toast.success("Payment record ho gaya — receipt taiyar hai.");
+      toast.success("Payment record ho gaya.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Payment save nahi ho paya.");
     } finally {
@@ -110,36 +100,19 @@ export function UpiPayDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
-        {receipt ? (
+        {done ? (
           <>
             <DialogHeader>
-              <DialogTitle>Fee receipt</DialogTitle>
-              <DialogDescription>Payment successful — receipt niche hai.</DialogDescription>
+              <DialogTitle>Payment record ho gaya</DialogTitle>
+              <DialogDescription>School office aapka payment verify kar raha hai.</DialogDescription>
             </DialogHeader>
-            <div id="upi-receipt" className="rounded-xl border p-4 text-sm">
+            <div className="rounded-xl border p-4 text-sm">
               <p className="text-center text-base font-bold">{SCHOOL_NAME}</p>
-              <p className="mb-3 text-center text-xs text-muted-foreground">Official fee receipt</p>
-              <dl className="space-y-1">
-                {[
-                  ["Receipt no.", receipt.receipt_no],
-                  ["Date", shortDate(receipt.paid_on)],
-                  ["Student", receipt.studentName],
-                  ["Admission no.", receipt.admissionNo],
-                  ["Method", receipt.method],
-                  ["UPI ref.", receipt.reference || "—"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between gap-4">
-                    <dt className="text-muted-foreground">{k}</dt>
-                    <dd className="font-medium">{v}</dd>
-                  </div>
-                ))}
-                <div className="mt-2 flex justify-between border-t pt-2">
-                  <dt className="font-semibold">Amount paid</dt>
-                  <dd className="text-lg font-bold text-success">{inr(receipt.amount)}</dd>
-                </div>
-              </dl>
-              <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                Pakki rasid school ki taraf se WhatsApp par bhej di jayegi.
+              <p className="mt-2 text-center">
+                {studentName} ke liye {inr(value)} ka payment note kar liya gaya hai.
+              </p>
+              <p className="mt-3 text-center text-xs text-muted-foreground">
+                Rasid school ki taraf se WhatsApp par bhej di jayegi.
               </p>
             </div>
             <DialogFooter>
