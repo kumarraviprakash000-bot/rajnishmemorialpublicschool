@@ -99,7 +99,6 @@ function ParentFees() {
                 <table className="mt-3 w-full min-w-[480px] text-sm">
                   <thead className="bg-muted/60 text-left text-xs uppercase tracking-wide text-muted-foreground">
                     <tr>
-                      <th className="px-4 py-3">Receipt</th>
                       <th className="px-4 py-3">Date</th>
                       <th className="px-4 py-3">Method</th>
                       <th className="px-4 py-3 text-right">Amount</th>
@@ -108,7 +107,6 @@ function ParentFees() {
                   <tbody className="divide-y">
                     {pays.map((p) => (
                       <tr key={p.id}>
-                        <td className="px-4 py-3 font-mono text-xs">{p.receipt_no}</td>
                         <td className="px-4 py-3">{shortDate(p.paid_on)}</td>
                         <td className="px-4 py-3">{p.method}</td>
                         <td className="px-4 py-3 text-right font-semibold text-success">{inr(p.amount)}</td>
