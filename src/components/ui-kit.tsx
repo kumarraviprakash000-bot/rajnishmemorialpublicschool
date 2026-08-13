@@ -14,7 +14,9 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
+        <h1 className="bg-gradient-to-r from-primary to-accent bg-clip-text text-2xl font-extrabold tracking-tight text-transparent sm:text-3xl">
+          {title}
+        </h1>
         {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
       </div>
       {actions ? <div className="flex flex-wrap gap-2">{actions}</div> : null}
@@ -44,7 +46,8 @@ export function StatCard({
   }[tone];
 
   return (
-    <div className="card-surface p-4 sm:p-5">
+    <div className="card-surface relative overflow-hidden p-4 transition-shadow duration-300 hover:shadow-elegant sm:p-5">
+      <span className="brand-gradient absolute inset-x-0 top-0 h-1 opacity-80" />
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
         {icon ? (
@@ -53,7 +56,7 @@ export function StatCard({
           </span>
         ) : null}
       </div>
-      <p className="mt-2 text-2xl font-bold tracking-tight">{value}</p>
+      <p className="mt-2 text-2xl font-bold tracking-tight text-foreground">{value}</p>
       {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
