@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +11,7 @@ import {
 import { inr, shortDate, SCHOOL_NAME } from "@/lib/format";
 import { recordUpiPayment } from "@/lib/parent-pay.functions";
 
-export const SCHOOL_UPI_ID = "vermamanoj975@ybl";
+export const SCHOOL_UPI_ID = "q133746399@ybl";
 const PAYEE_NAME = "Rajnish Memorial Public School";
 
 function upiQuery(amount: number, note: string) {
@@ -144,10 +143,7 @@ export function UpiPayDialog({
               </p>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>Close</Button>
-              <Button onClick={() => window.print()}>
-                <Printer className="size-4" /> Print receipt
-              </Button>
+              <Button onClick={() => onOpenChange(false)}>Close</Button>
             </DialogFooter>
           </>
         ) : (
