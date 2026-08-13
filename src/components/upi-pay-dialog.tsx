@@ -139,7 +139,7 @@ export function UpiPayDialog({
                 </div>
               </dl>
               <p className="mt-3 text-center text-[11px] text-muted-foreground">
-                Computer-generated receipt — signature ki zaroorat nahi.
+                Pakki rasid school ki taraf se WhatsApp par bhej di jayegi.
               </p>
             </div>
             <DialogFooter>
